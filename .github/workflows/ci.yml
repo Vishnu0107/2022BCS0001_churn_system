@@ -46,6 +46,29 @@ jobs:
 
     - name: Summary
       run: |
-        echo "## CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- Tests executed successfully" >> $GITHUB_STEP_SUMMARY
-        echo "- Docker image built and pushed" >> $GITHUB_STEP_SUMMARY
+        echo "## CI/CD Pipeline Report" >> $GITHUB_STEP_SUMMARY
+
+        echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+        echo "- Trigger: Push to main branch" >> $GITHUB_STEP_SUMMARY
+        echo "- Environment: Ubuntu Latest (GitHub Actions Runner)" >> $GITHUB_STEP_SUMMARY
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Execution" >> $GITHUB_STEP_SUMMARY
+        echo "- Test Framework: Pytest" >> $GITHUB_STEP_SUMMARY
+        echo "- Status: All test cases passed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- API endpoint (/predict) validated" >> $GITHUB_STEP_SUMMARY
+        echo "- Business rule logic verified" >> $GITHUB_STEP_SUMMARY
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Containerization" >> $GITHUB_STEP_SUMMARY
+        echo "- Docker image built successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- Image tagged using DockerHub repository" >> $GITHUB_STEP_SUMMARY
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Deployment Readiness" >> $GITHUB_STEP_SUMMARY
+        echo "- Image pushed to DockerHub" >> $GITHUB_STEP_SUMMARY
+        echo "- Ready for containerized deployment" >> $GITHUB_STEP_SUMMARY
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Overall Status" >> $GITHUB_STEP_SUMMARY
+        echo "Pipeline completed successfully with all stages executed without errors." >> $GITHUB_STEP_SUMMARY
