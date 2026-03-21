@@ -2,31 +2,50 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-test:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
 
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Set test DB
-      run: echo "DATABASE_URL=sqlite:///./test.db" >> $GITHUB_ENV
+    - name: Set environment variables
+      run: |
+        echo "DATABASE_URL=sqlite:///./test.db" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
 
-    - name: Set PYTHONPATH   
-      run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+    - name: Run Tests
+      run: |
+        pytest --maxfail=1 --disable-warnings -q --tb=short | tee pytest_output.txt
 
-    - name: Run tests
-      run: pytest
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: pytest-results
+        path: pytest_output.txt
 
-    - name: Build Docker
-      run: docker build -t churn-api .
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/churn-api:latest .
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Push Docker Image
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/churn-api:latest
+
+    - name: Summary
+      run: |
+        echo "## CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Tests executed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- Docker image built and pushed" >> $GITHUB_STEP_SUMMARY
