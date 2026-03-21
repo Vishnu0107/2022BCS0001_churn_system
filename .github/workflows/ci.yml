@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Set test DB
+      run: echo "DATABASE_URL=sqlite:///./test.db" >> $GITHUB_ENV
+
+    - name: Set PYTHONPATH   
+      run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+
+    - name: Run tests
+      run: pytest
+
+    - name: Build Docker
+      run: docker build -t churn-api .
