@@ -1,6 +1,6 @@
 # Customer Churn Prediction System (DevOps)
 
-## Student Information
+## Developer Information
 - Name: Vishnu Narayanan Vinodkumar  
 - Roll Number: 2022BCS0001  
 - Course: CSS 426 – MLOps  
