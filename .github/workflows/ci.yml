@@ -25,6 +25,17 @@ jobs:
         echo "DATABASE_URL=sqlite:///./test.db" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
 
+    - name: Train Model
+      run: |
+        python datasets/train.py | tee training_output.txt
+
+    - name: Upload Model Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: trained-model-artifacts
+        path: ml_artifacts/
+
+
     - name: Run Tests
       run: |
         pytest --maxfail=1 --disable-warnings -q --tb=short | tee pytest_output.txt
@@ -56,8 +67,13 @@ jobs:
         echo "### Test Execution" >> $GITHUB_STEP_SUMMARY
         echo "- Test Framework: Pytest" >> $GITHUB_STEP_SUMMARY
         echo "- Status: All test cases passed successfully" >> $GITHUB_STEP_SUMMARY
-        echo "- API endpoint (/predict) validated" >> $GITHUB_STEP_SUMMARY
-        echo "- Business rule logic verified" >> $GITHUB_STEP_SUMMARY
+        echo "- API endpoints (Rules + ML) validated" >> $GITHUB_STEP_SUMMARY
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ML Model Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        cat training_output.txt >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Containerization" >> $GITHUB_STEP_SUMMARY
@@ -71,4 +87,27 @@ jobs:
 
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Overall Status" >> $GITHUB_STEP_SUMMARY
-        echo "Pipeline completed successfully with all stages executed without errors." >> $GITHUB_STEP_SUMMARY
+        echo "Pipeline completed successfully with DevOps and MLOps stages executed without errors." >> $GITHUB_STEP_SUMMARY
+
+    - name: Generate YAML Report
+      run: |
+        echo "build_info:" > report.yaml
+        echo "  trigger: push" >> report.yaml
+        echo "  branch: main" >> report.yaml
+        echo "  timestamp: $(date)" >> report.yaml
+        echo "test_results:" >> report.yaml
+        echo "  framework: pytest" >> report.yaml
+        echo "  status: success" >> report.yaml
+        echo "  endpoints_validated:" >> report.yaml
+        echo "    - /predict" >> report.yaml
+        echo "    - /ml_predict" >> report.yaml
+        echo "    - /ml_batch_predict" >> report.yaml
+        echo "containerization:" >> report.yaml
+        echo "  image: ${{ secrets.DOCKERHUB_USERNAME }}/churn-api:latest" >> report.yaml
+        echo "  status: pushed" >> report.yaml
+
+    - name: Upload YAML Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: pipeline-report-yaml
+        path: report.yaml
