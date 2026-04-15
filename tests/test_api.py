@@ -49,3 +49,23 @@ def test_missing_monthly_charges():
         "tenure": 10
     })
     assert response.status_code == 400
+
+
+def test_ml_predict():
+    response = client.post("/ml_predict", json={
+        "tenure": 10,
+        "MonthlyCharges": 20,
+        "Contract": "Month-to-month",
+        "InternetService": "Fiber optic"
+    })
+    assert response.status_code == 200
+    assert "risk" in response.json()
+    assert "probability" in response.json()
+
+
+def test_ml_batch_predict():
+    response = client.get("/ml_batch_predict?n=10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_records"] == 10
+    assert len(data["results"]) == 10

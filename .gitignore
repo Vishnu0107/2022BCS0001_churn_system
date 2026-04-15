@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+venv/
+.env
+test.db
+ml_artifacts/
+datasets/Telco-Customer-Churn.csv
+report.yaml
+pytest_output.txt

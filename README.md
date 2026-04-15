@@ -1,63 +1,60 @@
-# Customer Churn Prediction System (DevOps)
+# Customer Churn Prediction System (DevOps + MLOps)
 
 ## Developer Information
 - Name: Vishnu Narayanan Vinodkumar  
 - Roll Number: 2022BCS0001  
 - Course: CSS 426 – MLOps  
-- Assignment: 1 (Part 1 – DevOps)
+- Assignment: 1 (Part 1 & 2 Combined)
 
 ---
 
 ## 1. Project Overview
 
-This project implements a **rule-based customer churn prediction system** deployed using a **DevOps pipeline**.  
+This project implements a hybrid **customer churn prediction system** combining **DevOps principles** with **MLOps workflows**.
 
-The system exposes a REST API that evaluates customer data and classifies churn risk into predefined categories using deterministic business rules.
-
-Unlike machine learning systems, this implementation ensures:
-- Transparent decision-making  
-- Deterministic outputs  
-- Ease of debugging and validation  
+The system exposes a REST API that offers two types of prediction:
+1. **Rule-Based (DevOps)**: Deterministic business logic for transparent decision-making.
+2. **ML-Based (MLOps)**: Probabilistic prediction using a Logistic Regression model trained on the Telco Customer Churn dataset.
 
 ---
 
 ## 2. System Architecture
 
-The overall system follows a DevOps-oriented architecture consisting of:
-
-- Version control using GitHub  
-- Continuous Integration (CI) pipeline  
-- Docker-based containerization  
-- API service for inference  
-- Observability through logging and metrics  
+The project integrates:
+- **DevOps**: GitHub CI/CD, Pytest, Docker containerization, and DockerHub registry.
+- **MLOps**: Automated model training (`datasets/train.py`), artifact management (`ml_artifacts/`), and inference pipeline.
 
 ### Workflow
+- Code push triggers GitHub Actions.
+- **MLOps Step**: Model is automatically retrained and validated.
+- **DevOps Step**: Unit and integration tests are executed.
+- **Deployment**: Docker image built (containing code + model) and pushed to DockerHub.
+- **Artifacts**: A `report.yaml` is generated and uploaded as a build artifact.
 
-- Code is pushed to GitHub  
-- CI pipeline is triggered  
-- Tests are executed  
-- Docker image is built  
-- Image is pushed to DockerHub  
-- Service is deployed and exposed via API  
-
-![DevOps Workflow](assets/images/Devops_flow.png)
-
-The architecture demonstrates:
-- Integration of CI/CD pipeline  
-- Rule-based inference engine  
-- Monitoring and logging capabilities  
-- Containerized deployment strategy  
+![MLOps Workflow](assets/images/Mlops_flow.png)
 
 ---
 
-## 3. Rule-Based Prediction Logic
+## 3. Prediction Logic
 
-The churn prediction logic is implemented in `rules.py` and is based on simple business rules:
+### Rule-Based (DevOps)
+Implemented in `app/rules.py`:
+- **High Risk**: tenure < 6 and monthly > 70
+- **Medium Risk**: tenure < 12
+- **Low Risk**: Otherwise
 
-```python
-if tenure < 6 and monthly > 70:
-    return "High Risk"
-elif tenure < 12:
-    return "Medium Risk"
-else:
-    return "Low Risk"
+### ML-Based (MLOps)
+- **Model**: Logistic Regression
+- **Data**: Telco Customer Churn (Kaggle)
+- **Features**: Demographics, Services, and Billing information.
+
+---
+
+## 4. API Endpoints
+
+- `POST /predict`: Rule-based prediction.
+- `POST /ml_predict`: Machine learning-based prediction.
+- `GET /batch_predict`: Synthetic batch prediction (Rules).
+- `GET /ml_batch_predict`: Synthetic batch prediction (ML).
+- `GET /dataset`: Generate synthetic customer data.
+- `GET /metrics`: Prometheus metrics.
